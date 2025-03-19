@@ -4,15 +4,18 @@ from .models import Post
 from datetime import datetime
 from .search import SearchPost
 from .forms import PostForm
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
 
 
 #Новости
-class NewsList(ListView):
+class NewsList(PermissionRequiredMixin, ListView):
     model = Post
     template_name = 'news/news_list.html'
     context_object_name = 'news'
     queryset = Post.objects.filter(post_type='NW').order_by('-created_at')
     paginate_by = 10
+    permission_required = ('biblio.view_post',)
 
     # Переопределяем функцию получения списка товаров
     def get_queryset(self):
@@ -39,47 +42,51 @@ class NewsList(ListView):
         context['next_sale'] = "Распродажа в среду!"
         return context
 
-class NewsDetail(DetailView):
+class NewsDetail(PermissionRequiredMixin, DetailView):
     model = Post
     template_name = 'news/news_detail.html'
     context_object_name = 'news'
+    permission_required = ('biblio.view_post',)
 
 
 # Добавляем новое представление для создания товаров.
-class PostCreate(CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView):
     # Указываем нашу разработанную форму
     form_class = PostForm
     # модель товаров
     model = Post
     # и новый шаблон, в котором используется форма.
     template_name = 'news/news_create.html'
+    permission_required = ('biblio.add_post',)
 
 
 
-# Добавляем представление для изменения товара.
-class PostEdit(UpdateView):
+
+class PostEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     # Указываем нашу разработанную форму
     form_class = PostForm
     # модель товаров
     model = Post
     # и новый шаблон, в котором используется форма.
     template_name = 'news/news_edit.html'
+    permission_required = ('biblio.change_post',)
 
-# Представление удаляющее товар.
-class PostDelete(DeleteView):
+
+class PostDelete(PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'news/news_delete.html'
-    success_url = reverse_lazy('news_list')
-
+    success_url = reverse_lazy('news_list'),
+    permission_required = ('biblio.delete_post',)
 
 
 #СТАТЬИ
-class ArticlesList(ListView):
+class ArticlesList(PermissionRequiredMixin, ListView):
     model = Post
     template_name = 'articles/articles_list.html'
     context_object_name = 'article'
     queryset = Post.objects.filter(post_type='AR').order_by('-created_at')
     paginate_by = 10
+    permission_required = ('biblio.view_post',)
 
     # Переопределяем функцию получения списка товаров
     def get_queryset(self):
@@ -106,35 +113,38 @@ class ArticlesList(ListView):
         context['next_sale'] = "Распродажа в среду!"
         return context
 
-class ArticlesDetail(DetailView):
+class ArticlesDetail(PermissionRequiredMixin, DetailView):
      model = Post
      template_name = 'articles/articles_detail.html'
      context_object_name = 'article'
+     permission_required = ('biblio.view_post',)
 
 
 # # Добавляем новое представление для создания товаров.
-class ArticlesCreate(CreateView):
+class ArticlesCreate(PermissionRequiredMixin, CreateView):
     # Указываем нашу разработанную форму
     form_class = PostForm
     # модель товаров
     model = Post
     # и новый шаблон, в котором используется форма.
     template_name = 'articles/articles_create.html'
-#
-#
+    permission_required = ('biblio.add_post',)
+
  # Добавляем представление для изменения товара.
-class ArticlesEdit(UpdateView):
+class ArticlesEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     # Указываем нашу разработанную форму
     form_class = PostForm
     # модель товаров
     model = Post
     # и новый шаблон, в котором используется форма.
     template_name = 'articles/articles_edit.html'
+    permission_required = ('biblio.change_post',)
 
 # Представление удаляющее товар.
-class ArticlesDelete(DeleteView):
+class ArticlesDelete(PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'articles/articles_delete.html'
     success_url = reverse_lazy('articles_list')
+    permission_required = ('biblio.delete_post',)
 
 
